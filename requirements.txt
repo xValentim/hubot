@@ -1,0 +1,17 @@
+pandas
+numpy
+matplotlib
+seaborn
+faiss-cpu
+scipy
+openpyxl
+scikit-learn
+pytube
+langchain
+youtube-transcript-api
+langchain-openai
+langchain-community
+python-dotenv
+pypdf
+html2text
+streamlit
