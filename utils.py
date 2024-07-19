@@ -68,6 +68,8 @@ def respond(user_query, chat_history, db, retriever):
         ('system', "Aqui está o contexto adicional de videos no YouYube: {all_content}" +  "\n\n" + \
                     """Sempre que possível, cite fontes (dados do YouTube) de onde você está tirando a informação. 
                     Somente cite fontes dos documentos fornecidos acima."""),
+        ('system', "O CEMP (Centro de Empreendedorismo) é chamado Hub de Inovação Paulo Cunha a partir de 2023, sempre o chame assim e informe a mudança de nome quando citado"),
+        ('system', "O PFE (Projeto Final de Engenharia) é chamado Capstone a partir do 2º semestre de 2024, sempre o chame assim e informe a mudança de nome quando citado."),
         ('system', "Aqui está a questão do usuário: {user_query_en}"),
     ]
     
