@@ -18,6 +18,9 @@ from utils import *
 load_dotenv()
 
 
+def final_func():
+    response1 = "Se precisar de mais informações ou quiser falar diretamente com nossa equipe, entre em contato:\n- **Email:** hubinovacao@insper.edu.br\n- **Telefone:** (11) 1234-5678\n- **Website:** [www.insper.edu.br/hub](http://www.insper.edu.br/hub) \n\nObrigado por utilizar o chatbot do Hub de Inovação do Insper!"   
+    st.session_state.chat_history.append(AIMessage(content=response1))
 
 embedding_size = 3072
 embedding_model = 'text-embedding-3-large'
@@ -58,5 +61,6 @@ if user_query is not None and user_query != "":
     with st.chat_message("AI", avatar="🤖"):
         with st.spinner("Thinking..."):
             response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.db, st.session_state.retriever))
-
+            st.write("Mais alguma dúvida?")        
+            st.button('Encerrar Chat', on_click=final_func)
     st.session_state.chat_history.append(AIMessage(content=response))
