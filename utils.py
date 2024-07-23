@@ -37,20 +37,24 @@ def format_docs(docs):
 #     return all_content
 
 def cs_sidebar():
+    st.sidebar.header("HUBot - Sua IA para inovadores e empreendedores")
+
+    st.sidebar.markdown('https://www.hub.insper.edu.br/')
+
+    st.sidebar.markdown('https://www.insper.edu.br/')
 
     st.sidebar.markdown("""
-                        # HUBOT
                         <div style='display: flex; flex-direction: column; justify-content: space-between; height: 100%;'>
-                            <div style='margin-top: 20rem;'>
-                                <h4> About <a href='https://www.02pelaeducacao.org/'> 
-                                                <img src='data:image/png;base64,{}' class='img-fluid' width=112 height=20>
+                            <div style='margin-top: 10rem;'>
+                                <h4> About <a href='https://neroai.com.br/'> 
+                                                <img src='data:image/png;base64,{}' class='img-fluid' height=70>
                                             </a> </h4>
-                                <h4> Powered by <a href='https://neroai.com.br/'>
-                                    <img src='data:image/png;base64,{}' class='img-fluid' height=70>
+                                <h4> Powered by <a href='https://www.insper.edu.br/'>
+                                    <img src='data:image/png;base64,{}' class='img-fluid' width=112 height=20>
                                 </a> </h4>
                             </div>
                         </div>
-                        """.format(img_to_bytes("imgs/neroai_logo.png"), img_to_bytes("imgs/logo_hub.png")), unsafe_allow_html=True)
+                        """.format(img_to_bytes("imgs/logo_hub.png"), img_to_bytes("imgs/neroai_logo.png")), unsafe_allow_html=True)
 
     return None
 
@@ -112,3 +116,12 @@ def respond(user_query, chat_history, db, retriever):
         "user_query": user_query,
         "chat_history": chat_history,
     })
+
+from unidecode import unidecode
+
+def formata(s):
+    # Remove acentos
+    s = unidecode(s)
+    # Transforma tudo em minúsculas
+    s = s.lower()
+    return s
