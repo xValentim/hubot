@@ -26,8 +26,17 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 def get_strings_from_documents(documents):
     return [doc.page_content for doc in documents]
 
+# def format_docs(docs):
+#     return "\n\n".join([d.page_content for d in docs])
+
 def format_docs(docs):
-    return "\n\n".join([d.page_content for d in docs])
+    out_doc = "\n\n"
+    for d in docs:
+        out_doc += d.page_content + "\n"
+        for index in d.metadata:
+            out_doc += index + ": " + str(d.metadata[index]) + "\n"
+        out_doc += "\n\n"
+    return out_doc
 
 # def run_rag(user_query):
 #     if user_query != str:
@@ -57,6 +66,41 @@ def cs_sidebar():
                         """.format(img_to_bytes("imgs/logo_hub.png"), img_to_bytes("imgs/neroai_logo.png")), unsafe_allow_html=True)
 
     return None
+def get_retriever(statement, embeddings):
+    vdb_path = f"vectorstore/hub_{statement}"
+    try:
+        db = FAISS.load_local(vdb_path, embeddings, allow_dangerous_deserialization=True)
+    except:
+        db = FAISS.load_local("vectorstore/hub_institucional", embeddings, allow_dangerous_deserialization=True)
+    return db
+
+def classfifier_rag(query):
+    rules_verifier = """
+    Você é um agente classificador de querys. Seu trabalho é classificar a intenção do usuário através de sua pergunta.
+    Para isso, você deve seguir as seguintes regras:
+
+    1. Para perguntas que pedem informações sobre o Hub ou contextos mais gerais, você deve retornar a mensagem "institucional".
+    2. Para perguntas que pedem informações sobre empreendedorismo, você deve retornar a mensagem "empreendedorismo".
+    3. Para perguntas que pedem informações sobre o ON (Oportunidade de Negócios), WiT (Woman in Tech) ou Rep
+    (Resolução Eficaz de Problemas ), você deve retornar a mensagem "projetos".
+    4. Para perguntas que pedem informações sobre webinars e vídeos do Youtube, você deve retornar a mensagem "webinars".
+    5. Para perguntas que pedem informações sobre notícias, você deve retornar a mensagem "notícias".
+    6. Para perguntas que pedem informações sobre posts em redes sociais, você deve retornar a mensagem "social".
+
+    A query feita pelo usuário foi:
+    {query}
+
+    Responda qual deve ser a classificação da query.
+    """
+
+    llm = ChatOpenAI(temperature=0.02, model="gpt-4o-mini")
+
+    prompt = ChatPromptTemplate.from_messages([('system', rules_verifier)])
+
+    ver_agent = prompt | llm | StrOutputParser()
+
+    statement = ver_agent.invoke(input={"query": query})
+    return statement
 
 def respond(user_query, chat_history, db, retriever):
     
