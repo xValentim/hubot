@@ -40,7 +40,7 @@ if "chat_history" not in st.session_state:
     ]
 
 if 'db' not in st.session_state:
-    st.session_state.db = FAISS.load_local("vectorstore/hub_index", embeddings, allow_dangerous_deserialization=True)
+    st.session_state.db = FAISS.load_local("vectorstore/hub_institucional", embeddings, allow_dangerous_deserialization=True)
     st.session_state.retriever = st.session_state.db.as_retriever()
 
 # conversation
@@ -74,7 +74,13 @@ if user_query is not None and user_query != "":
     if not (verifica(st.session_state.chat_history)) and aux:
         with st.chat_message("AI", avatar="🤖"):
             with st.spinner("Thinking..."):
-                response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.db, st.session_state.retriever))
+                statement = classfifier_rag(user_query)
+                if statement != "institucional":
+                    st.session_state.db_context = get_retriever(statement, embeddings)
+                    st.session_state.retriever_context = st.session_state.db_context.as_retriever()
+                    response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.retriever, statement, st.session_state.retriever_context))
+                else:
+                    response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.retriever, statement))
                 aux = True
                 response2 = "Você tem mais alguma dúvida?"
                 st.write(response2)

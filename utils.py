@@ -26,8 +26,17 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 def get_strings_from_documents(documents):
     return [doc.page_content for doc in documents]
 
+# def format_docs(docs):
+#     return "\n\n".join([d.page_content for d in docs])
+
 def format_docs(docs):
-    return "\n\n".join([d.page_content for d in docs])
+    out_doc = "\n\n"
+    for d in docs:
+        out_doc += d.page_content + "\n"
+        for index in d.metadata:
+            out_doc += index + ": " + str(d.metadata[index]) + "\n"
+        out_doc += "\n\n"
+    return out_doc
 
 # def run_rag(user_query):
 #     if user_query != str:
@@ -57,11 +66,49 @@ def cs_sidebar():
                         """.format(img_to_bytes("imgs/logo_hub.png"), img_to_bytes("imgs/neroai_logo.png")), unsafe_allow_html=True)
 
     return None
+def get_retriever(statement, embeddings):
+    vdb_path = f"vectorstore/hub_{statement}"
+    db = FAISS.load_local(vdb_path, embeddings, allow_dangerous_deserialization=True)
+    return db
 
-def respond(user_query, chat_history, db, retriever):
+def classfifier_rag(query):
+    rules_verifier = """
+    Você é um agente classificador de querys. Seu trabalho é classificar a intenção do usuário através de sua pergunta.
+    Para isso, você deve seguir as seguintes regras:
+
+    1. Para perguntas que pedem informações sobre o Hub ou contextos mais gerais, você deve retornar a mensagem "institucional".
+    2. Para perguntas que pedem informações sobre empreendedorismo, você deve retornar a mensagem "empreendedorismo".
+    3. Para perguntas que pedem informações sobre o ON (Oportunidade de Negócios), WiT (Woman in Tech) ou Rep
+    (Resolução Eficaz de Problemas ), você deve retornar a mensagem "projects".
+    4. Para perguntas que pedem informações sobre webinars e vídeos do Youtube, você deve retornar a mensagem "webinars".
+    5. Para perguntas que pedem informações sobre notícias ou posts em redes sociais, você deve retornar a mensagem "news_social".
+
+    A query feita pelo usuário foi:
+    {query}
+
+    Responda qual deve ser a classificação da query.
+    """
+
+    llm = ChatOpenAI(temperature=0.02, model="gpt-4o-mini")
+
+    prompt = ChatPromptTemplate.from_messages([('system', rules_verifier)])
+
+    ver_agent = prompt | llm | StrOutputParser()
+
+    statement = ver_agent.invoke(input={"query": query})
+    return statement
+
+def respond(user_query, chat_history, retriever, statement, retriever_context=None):
     
     
-    
+    if statement == "institucional":
+        rag_rule = "Aqui está o contexto adicional de documentos institucionais: {all_content}" +  "\n\n" + \
+                """Sempre que possível, cite fontes de onde você está tirando a informação de posts em redes socias e youtube. 
+                Somente cite fontes dos documentos fornecidos acima."""
+    else:
+        rag_rule = "Aqui está o contexto adicional de documentos institucionais: {all_content}" +  "\n\n" + "{rag_context}" + \
+                """Sempre que possível, cite fontes de onde você está tirando a informação de posts em redes socias e youtube. 
+                Somente cite fontes dos documentos fornecidos acima."""
     all_messages = [
         ('system', "Aqui está o que foi conversado até agora:\n\n" + \
                     "\n\n".join([msg.content for msg in chat_history[-4:]])),
@@ -69,9 +116,7 @@ def respond(user_query, chat_history, db, retriever):
                     Você é um assistente do Hub de inovação do Insper. 
                     Você vai responder perguntas sobre Startups e Empreendedorismo. 
                     Se apresente e diga como você pode ajudar."""),
-        ('system', "Aqui está o contexto adicional de videos no YouYube: {all_content}" +  "\n\n" + \
-                    """Sempre que possível, cite fontes de onde você está tirando a informação de posts em redes socias e youtube. 
-                    Somente cite fontes dos documentos fornecidos acima."""),
+        ('system', rag_rule),
         ('system', "Aqui está a questão do usuário: {user_query}"),
         ('system', "Sempre responda no idioma português"),
         ('system', "Toda vez que alguém fizer perguntas relacionadas ao Hub você deve responder em primeira pessoa no plural usando 'Somos','Fazemos”,'criamos”,'realizamos”,'executamos'."),
@@ -101,16 +146,29 @@ def respond(user_query, chat_history, db, retriever):
     
     prompt = ChatPromptTemplate.from_messages(all_messages)
 
-    chain_rag =  StrOutputParser() | retriever | RunnableLambda(format_docs)
+    chain_rag =  retriever | format_docs
 
-    chain = (
+    if statement == "institucional":
+        chain = (
+            {   
+                'all_content': itemgetter('user_query') | chain_rag,
+                'user_query': itemgetter('user_query')
+            } 
+            | prompt 
+            | llm 
+            | StrOutputParser())
+    else:
+        chain_rag_context =  retriever_context |format_docs
+        chain = (
         {   
             'all_content': itemgetter('user_query') | chain_rag,
+            'rag_context': itemgetter('user_query') | chain_rag_context,
             'user_query': itemgetter('user_query')
         } 
         | prompt 
         | llm 
         | StrOutputParser())
+
     
     return chain.stream({
         "user_query": user_query,
