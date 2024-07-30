@@ -74,14 +74,35 @@ def get_retriever(statement, embeddings):
 def classfifier_rag(query):
     rules_verifier = """
     Você é um agente classificador de querys. Seu trabalho é classificar a intenção do usuário através de sua pergunta.
-    Para isso, você deve seguir as seguintes regras:
 
-    1. Para perguntas que pedem informações sobre o Hub ou contextos mais gerais, você deve retornar a mensagem "institucional".
-    2. Para perguntas que pedem informações sobre empreendedorismo, você deve retornar a mensagem "empreendedorismo".
-    3. Para perguntas que pedem informações sobre o ON (Oportunidade de Negócios), WiT (Woman in Tech) ou Rep
-    (Resolução Eficaz de Problemas ), você deve retornar a mensagem "projects".
-    4. Para perguntas que pedem informações sobre webinars e vídeos do Youtube, você deve retornar a mensagem "webinars".
-    5. Para perguntas que pedem informações sobre notícias ou posts em redes sociais, você deve retornar a mensagem "news_social".
+    As classificações possíveis são: "institucional", "empreendedorismo", "projects", "webinars" e "news_social".
+
+    Para fazer a classificação, você deve seguir as seguintes regras:
+
+    1. Fazem parte da classificação "institucional" perguntas que pedem informações sobre:
+        De forma direta:
+        - Documentos institucionais do Hub de Inovação, como regimentos, manuais, portarias, resoluções, entre outros.
+        - Informações sobre o Hub de Inovação, como história, missão, visão, valores, entre outros.
+        - Pessoas que fazem parte do Hub de Inovação, como coordenadores, gerentes, analistas, entre outros.
+        De forma mais geral:
+        - Projetos e programas do Hub de Inovação, como projetos de inovação, projetos acadêmicos, programas de aceleração, entre outros.
+        - Eventos do Hub de Inovação, como webinars, palestras, workshops, entre outros.
+
+    2. Fazem parte da classificação "empreendedorismo" perguntas que pedem informações sobre:
+        - Empreendedorismo em geral, como definição, conceitos, teorias, entre outros.
+        - Empreendedorismo no contexto do Hub de Inovação, como programas, eventos, projetos, entre outros.
+        - Atuação do Hub de Inovação no empreendedorismo, como apoio a startups, mentoria, aceleração, entre outros.
+
+    3. Fazem parte da classificação "projects" perguntas que pedem informações gerais e específicas sobre Oportunidades de Negócios "ON", Resolução Eficaz de Problemas "REP", Women in Tech "WIT" , Projeto Final de Engenharia "PFE" ou Capstone.
+        - O REP é uma oportunidade do Insper para o curso de Administração, onde os alunos podem resolver problemas reais de empresas no lugar de produzir um TCC.
+        - O Women in Tech é uma iniciativa do Hub de Inovação que busca incentivar a participação feminina na área de tecnologia.
+        - O PFE é um projeto de conclusão de curso para os alunos de Engenharia do Insper, agora renomeado Capstone.
+    
+    4. Para perguntas que pedem informações diretas sobre webinars e vídeos do Youtube, você deve retornar a mensagem "webinars".
+    5. Para perguntas que pedem informações diretas sobre notícias ou posts em redes sociais, você deve retornar a mensagem "news_social".
+
+
+    Se não se encaixar em nenhuma classificação, você deve retornar a mensagem "institucional".
 
     A query feita pelo usuário foi:
     {query}
@@ -139,6 +160,9 @@ def respond(user_query, chat_history, retriever, statement, retriever_context=No
                     Bruna Reis Morimotto (Analista de Projetos e Inovação)"""),
         ('system', "Os alunos e alumni Insper não tem nenhum custo extra para usar o coworking, receber mentorias e participar do programa de aceleração até o momento."),
         ('system', "Apenas para alunos, pós e alumni: Todas as segundas-feiras temos sessões informativas para os alunos da graduação às 12h e para pós e alumni às 18h"),
+        ('system', "Caso a questão do usuário seja relacionado à empreendedorismo, ou ele tenha interesse em empreender, cadastrar sua empresa ou solicitar ajuda com algum projeto no Hub, indique a incrição através do formulário para contato com a equipe de Advisory com o link: https://forms.gle/3QPbUKsrfsVVazf48"),
+        ('system', "Caso o usuário pergunte pelos contatos do Hub, informe: Email: hub@insper.edu.br, WhatsApp: https://wa.me/message/SNMDWEXHGB7AN1, Website: http://www.insper.edu.br/hub"),
+        ('system', "Se o usuário perguntar sobre eventos futuros do Hub, apenas para ele entrar em contato com o Hub para mais informações."),
     ]
     
     llm = ChatOpenAI(temperature=0.05, model="gpt-4o-mini-2024-07-18", api_key=OPENAI_API_KEY)
