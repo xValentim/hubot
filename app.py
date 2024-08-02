@@ -18,25 +18,24 @@ from utils import *
 load_dotenv()
 
 aux = False
-
-# app config
 st.set_page_config(page_title="Streamlit Chatbot", page_icon="🤖")
-st.title("Assistente virtual - Hub Insper")
-cs_sidebar()
-
-@st.experimental_dialog("Obrigado por utilizar o chatbot do Hub de Inovação do Insper!")
+@st.dialog("Obrigado por utilizar o chatbot do Hub de Inovação do Insper!")
 def vote():
-    response1 = "Se precisar de mais informações ou quiser falar diretamente com nossa equipe, entre em contato:\n- **Email:** hub@insper.edu.br\n- **WhatsApp:** https://wa.me/message/SNMDWEXHGB7AN1\n- **Website:** [www.hub.insper.edu.br](http://www.insper.edu.br/hub)"   
+    response1 = "Se precisar de mais informações ou quiser falar diretamente com nossa equipe, entre em contato:\n- **Email:** hubinovacao@insper.edu.br\n- **Telefone:** (11) 1234-5678\n- **Website:** [www.hub.insper.edu.br](http://www.insper.edu.br/hub)"   
     st.write(response1)
 
 embedding_size = 3072
 embedding_model = 'text-embedding-3-large'
 embeddings = OpenAIEmbeddings(model=embedding_model)
 
+# app config
+st.title("Inteligência Artificial do Hub – HUBot")
+cs_sidebar()
+
 # session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
-        AIMessage(content="Olá, eu sou o assistente do Hub de inovação do Insper. Estou aqui para responder perguntas sobre Startups e Empreendedorismo. Como posso ajudar você?"),
+        AIMessage(content="Olá, sou HUBot, a IA do Hub de inovação e Empreendedorismo Paulo Cunha do Insper. Estou aqui para responder perguntas sobre o ecossistema de inovação, empreendedorismo e startups do Insper. Como posso te ajudar?"),
     ]
 
 if 'db' not in st.session_state:
