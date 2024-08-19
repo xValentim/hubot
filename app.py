@@ -59,8 +59,10 @@ user_query = st.chat_input("Digite algo...")
 
 if not st.session_state.aux:
     vote()
-if user_query is not None and user_query != "":
     st.session_state.aux = True
+    
+if user_query is not None and user_query != "":
+    
     st.session_state.chat_history.append(HumanMessage(content=user_query))
 
     with st.chat_message("Human", avatar="👤"):
