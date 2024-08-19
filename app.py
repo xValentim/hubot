@@ -17,7 +17,7 @@ from utils import *
 
 load_dotenv()
 
-aux = False
+
 st.set_page_config(page_title="Streamlit Chatbot", page_icon="🤖")
 
 @st.dialog("Seja bem-vindo(a) ao chatbot do Hub de Inovação do Insper!")
@@ -40,6 +40,7 @@ if "chat_history" not in st.session_state:
     ]
 
 if 'db' not in st.session_state:
+    st.aux = False
     st.session_state.db = FAISS.load_local("vectorstore/hub_institucional", embeddings, allow_dangerous_deserialization=True)
     st.session_state.retriever = st.session_state.db.as_retriever()
 
@@ -56,10 +57,10 @@ for message in st.session_state.chat_history:
 
 user_query = st.chat_input("Digite algo...")
 
-if not aux:
+if not st.aux:
     vote()
 if user_query is not None and user_query != "":
-    aux = True
+    st.aux = True
     st.session_state.chat_history.append(HumanMessage(content=user_query))
 
     with st.chat_message("Human", avatar="👤"):
@@ -75,7 +76,7 @@ if user_query is not None and user_query != "":
                 response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.retriever, statement, st.session_state.retriever_context))
             else:
                 response = st.write_stream(respond(user_query, st.session_state.chat_history, st.session_state.retriever, statement))
-            aux = True
+            st.aux = True
             response2 = "Você tem mais alguma dúvida?"
             st.write(response2)
             st.session_state.chat_history.append(AIMessage(content=response))
