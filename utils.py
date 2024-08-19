@@ -58,7 +58,7 @@ def cs_sidebar():
                                 <h4> About <a href='https://neroai.com.br/'> 
                                                 <img src='data:image/png;base64,{}' class='img-fluid' height=70>
                                             </a> </h4>
-                                <h4> Powered by <a href='https://www.insper.edu.br/'>
+                                <h4> Powered by <a href='http://hub.insper.edu.br/'>
                                     <img src='data:image/png;base64,{}' class='img-fluid' width=112 height=20>
                                 </a> </h4>
                             </div>
@@ -76,6 +76,8 @@ def classfifier_rag(query):
     Você é um agente classificador de querys. Seu trabalho é classificar a intenção do usuário através de sua pergunta.
 
     As classificações possíveis são: "institucional", "empreendedorismo", "projects", "webinars" e "news_social".
+
+    Responda apenas uma palavra com a classificação da query.
 
     Para fazer a classificação, você deve seguir as seguintes regras:
 
@@ -107,7 +109,7 @@ def classfifier_rag(query):
     A query feita pelo usuário foi:
     {query}
 
-    Responda qual deve ser a classificação da query.
+    A classificação da query é:
     """
 
     llm = ChatOpenAI(temperature=0.02, model="gpt-4o-mini")
