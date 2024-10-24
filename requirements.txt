@@ -16,3 +16,4 @@ pypdf
 html2text
 streamlit
 unidecode
+streamlit_authenticator
