@@ -93,6 +93,12 @@ if user_query is not None and user_query != "":
             st.session_state.aux = True
             response2 = "Você tem mais alguma dúvida?"
             st.write(response2)
+            # Feedback
+            sentiment_mapping = [":material/thumb_down:", ":material/thumb_up:"]
+            selected = st.feedback("thumbs")
+            if selected is not None:
+                st.markdown(f"You selected: {sentiment_mapping[selected]}")
+                
             st.session_state.chat_history.append(AIMessage(content=response))
             st.session_state.chat_history.append(AIMessage(content=response2))
             
