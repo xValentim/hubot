@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import streamlit as st
 import os
-
+from openai import OpenAI
 # Langchain
 from langchain_community.vectorstores import FAISS
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
@@ -14,13 +14,35 @@ import base64
 from pathlib import Path
 
 load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+def guardrail(user_query):
+    client = OpenAI()
+
+    response = client.moderations.create(
+        model="omni-moderation-latest",
+        input=user_query,
+    )
+
+    categories = response.results[0].categories
+
+    # Obter os valores das categorias
+    category_values = vars(categories).values()
+
+    # Verificar se alguma categoria é True
+    if any(category_values):
+        return True
+    else:
+        return False
+    
+        
 
 def img_to_bytes(img_path):
     img_bytes = Path(img_path).read_bytes()
     encoded = base64.b64encode(img_bytes).decode()
     return encoded
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 # Funções auxiliares
 def get_strings_from_documents(documents):
@@ -123,7 +145,13 @@ def classfifier_rag(query):
 
 def respond(user_query, chat_history, retriever, statement, retriever_context=None):
     
-    
+    #Camada de Guardrail
+    conteudo_ofensivo = guardrail(user_query)
+    if conteudo_ofensivo:
+        yield ("Conteúdo inválido. Por favor, revise o conteúdo enviado.")
+ 
+
+    #Classificação
     if statement == "institucional":
         rag_rule = "Aqui está o contexto adicional de documentos institucionais: {all_content}" +  "\n\n" + \
                 """Sempre que possível, cite fontes de onde você está tirando a informação de posts em redes socias e youtube. 
