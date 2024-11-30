@@ -1,0 +1,42 @@
+cookie:
+  expiry_days: 30
+  key: some_signature_key
+  name: some_cookie_name
+credentials:
+  usernames:
+    admin:
+      email: jsmith@gmail.com
+      failed_login_attempts: 0
+      logged_in: true
+      name: admin
+      password: $2b$12$yr2G3XLt1RF8WCM05w72RuLSH/Tapan6blBGbpjW/uh.OIhkRbR3q
+    enzo:
+      email: enzo@gmaill.com
+      failed_login_attempts: 0
+      logged_in: false
+      name: enzo
+      password: $2b$12$nP3XPGXWMr7Yy.XJNKrb2ORbApLkPsa6wJBLp.ITs0wK20nCg6VLu
+    hudson:
+      email: hudson@gmail.com
+      failed_login_attempts: 0
+      logged_in: true
+      name: Hudson
+      password: $2b$12$dBk/yQIpDuTnorVzyGlrTOdbFOfV1CaRHMoHhay2vdgM4U1VNoPHq
+    nero:
+      email: nero@gmail.com
+      failed_login_attempts: 0
+      first_name: enzo
+      last_name: davi
+      logged_in: true
+      password: $2b$12$uiG2pU0y9J.pnipSqdzhjemqa5UWsz1TCYIUY38gSUxq1cT59ss6.
+      password_hint: nero
+      roles: null
+    rbriggs:
+      email: rbriggs@gmail.com
+      failed_login_attempts: 0
+      logged_in: false
+      name: Rebecca Briggs
+      password: $2b$12$lrL7pLqt0C0LAypDm5h.QOzv0NiaNLSIUE/8sF50oiwicDbTMP.UO
+pre-authorized:
+  emails:
+  - melsby@gmail.com
